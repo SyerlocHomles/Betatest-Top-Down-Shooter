@@ -150,23 +150,39 @@ type:'mini',variant:enh?'enhanced':'basic'
 
 function spawnMainBoss(){{
 bosses.push({{
-x:300,y:-50,s:60,hp:3000,mH:3000,c:'#8B0000',sp:.8,
+x:300,y:-50,s:60,hp:5000,mH:5000,c:'#8B0000',sp:.8,
 shieldActive:false,shieldTimer:0,nextShield:800,
 fireRate:40,fireTimer:0,
-summonTimer:300,summonCD:600,
+summonTimer:200,summonCD:500,
 type:'main',phase:1,glow:0
 }});
+
+// Spawn 2 mini bosses immediately
+setTimeout(()=>{{
+bosses.push({{
+x:200,y:-30,s:35,hp:1000,mH:1000,c:'#9b59b6',sp:1.2,
+shieldActive:false,shieldTimer:0,nextShield:600,
+fireRate:50,fireTimer:0,
+type:'minion',variant:'summoned'
+}});
+bosses.push({{
+x:400,y:-30,s:35,hp:1000,mH:1000,c:'#9b59b6',sp:1.2,
+shieldActive:false,shieldTimer:0,nextShield:600,
+fireRate:50,fireTimer:0,
+type:'minion',variant:'summoned'
+}});
+}},1000);
 }}
 
 function advanceStage(){{
 stage++;
 bossDefeated=false;
-if(stage>3){{
+if(stage>5){{
 stage=1;
 chapter++;
 showTrans(`CHAPTER ${{chapter}}`,'NEW WORLD!',240);
 }}else{{
-if(stage===3)showTrans(`⚠️ STAGE ${{chapter}}-${{stage}} ⚠️`,'BOSS INCOMING!',240);
+if(stage===5)showTrans(`⚠️ STAGE ${{chapter}}-${{stage}} ⚠️`,'BIG BOSS INCOMING!',240);
 else showTrans(`STAGE ${{chapter}}-${{stage}}`,'GET READY!',180);
 }}
 if(stage===1){{
@@ -266,8 +282,8 @@ transTimer--;
 if(transTimer<=0){{
 transEl.style.display='none';
 stageState='combat';
-if(stage===1||stage===2)spawnMiniBoss(stage===2);
-else if(stage===3)spawnMainBoss();
+if(stage<5)spawnMiniBoss(stage>=3);
+else if(stage===5)spawnMainBoss();
 }}
 return;
 }}
@@ -459,10 +475,12 @@ for(let n=0;n<3;n++)spawnItem(boss.x+Math.random()*60-30,boss.y+Math.random()*60
 }}
 bosses.splice(i,1);
 if(bosses.length===0&&!gameOver){{
-if(boss.type==='main')advanceStage();
-else{{
 bossDefeated=true;
-showTrans('MINI BOSS DEFEATED!','Fight enhanced enemies!',120);
+if(boss.type==='main'){{
+showTrans('BIG BOSS DEFEATED!','Advancing to next chapter!',180);
+setTimeout(()=>advanceStage(),180*16.67);
+}}else{{
+showTrans('MINI BOSS DEFEATED!','Continue fighting!',120);
 }}
 }}
 }}
@@ -472,27 +490,37 @@ if(bossDefeated&&score>=nextStageScore&&bosses.length===0&&stageState==='combat'
 advanceStage();
 }}
 
-if(score>=nextStageScore&&bosses.length===0&&stageState==='combat'&&!gameOver&&!bossDefeated){{
-stageState='boss-ready';
-if(stage===1||stage===2)spawnMiniBoss(stage===2);
-else if(stage===3)spawnMainBoss();
-}}
-
 if(bosses.length===0&&!gameOver&&enemies.length<8){{
 let rand=Math.random();
-let type;
+let eType;
 
-if(bossDefeated&&stage===1){{
-type={{c:'#e74',hp:8,val:8,sp:1.4,s:22,canShoot:true,shootCD:120,shootTimer:0}};
+// Stage 1-1: All normal enemies
+if(stage===1){{
+eType=rand<.33?{{c:'#2e7',hp:15,val:15,sp:.6,s:30}}:(rand<.66?{{c:'#95b',hp:5,val:10,sp:1.8,s:15}}:{{c:'#e74',hp:5,val:5,sp:1.2,s:22}});
 }}
-else if(bossDefeated&&stage===2){{
-type={{c:'#2e7',hp:20,val:20,sp:.8,s:30,canShoot:true,shootCD:90,shootTimer:0}};
+// Stage 1-2: Red can shoot
+else if(stage===2){{
+if(rand<.33)eType={{c:'#2e7',hp:15,val:15,sp:.6,s:30}};
+else if(rand<.66)eType={{c:'#95b',hp:5,val:10,sp:1.8,s:15}};
+else eType={{c:'#e74',hp:8,val:8,sp:1.4,s:22,canShoot:true,shootCD:120,shootTimer:0}};
 }}
-else if(bossDefeated&&stage===3){{
-type={{c:'#95b',hp:8,val:15,sp:2.2,s:15,canDash:true,dashCD:180,dashTimer:0,dashActive:false}};
+// Stage 1-3: Red & Green can shoot
+else if(stage===3){{
+if(rand<.33)eType={{c:'#2e7',hp:20,val:20,sp:.8,s:30,canShoot:true,shootCD:100,shootTimer:0}};
+else if(rand<.66)eType={{c:'#95b',hp:5,val:10,sp:1.8,s:15}};
+else eType={{c:'#e74',hp:8,val:8,sp:1.4,s:22,canShoot:true,shootCD:120,shootTimer:0}};
 }}
-else{{
-type=rand<.2?{{c:'#2e7',hp:15,val:15,sp:.6,s:30}}:(rand<.5?{{c:'#95b',hp:5,val:10,sp:1.8,s:15}}:{{c:'#e74',hp:5,val:5,sp:1.2,s:22}});
+// Stage 1-4: All can shoot (purple faster)
+else if(stage===4){{
+if(rand<.33)eType={{c:'#2e7',hp:20,val:20,sp:.8,s:30,canShoot:true,shootCD:100,shootTimer:0}};
+else if(rand<.66)eType={{c:'#95b',hp:8,val:15,sp:1.8,s:15,canShoot:true,shootCD:60,shootTimer:0}};
+else eType={{c:'#e74',hp:8,val:8,sp:1.4,s:22,canShoot:true,shootCD:120,shootTimer:0}};
+}}
+// Stage 1-5: During boss fight, spawn all advanced enemies
+else if(stage===5){{
+if(rand<.33)eType={{c:'#2e7',hp:25,val:25,sp:.9,s:30,canShoot:true,shootCD:90,shootTimer:0}};
+else if(rand<.66)eType={{c:'#95b',hp:10,val:20,sp:2.0,s:15,canShoot:true,shootCD:50,shootTimer:0}};
+else eType={{c:'#e74',hp:10,val:10,sp:1.5,s:22,canShoot:true,shootCD:100,shootTimer:0}};
 }}
 
 let ex,ey,dist;
@@ -503,14 +531,14 @@ dist=Math.hypot(ex-pl.x,ey-pl.y);
 }}while(dist<200);
 
 enemies.push({{
-x:ex,y:ey,s:type.s,sp:type.sp,hp:type.hp,c:type.c,val:type.val,
-canShoot:type.canShoot||false,
-shootCD:type.shootCD||0,
-shootTimer:type.shootTimer||0,
-canDash:type.canDash||false,
-dashCD:type.dashCD||0,
-dashTimer:type.dashTimer||0,
-dashActive:type.dashActive||false
+x:ex,y:ey,s:eType.s,sp:eType.sp,hp:eType.hp,c:eType.c,val:eType.val,
+canShoot:eType.canShoot||false,
+shootCD:eType.shootCD||0,
+shootTimer:eType.shootTimer||0,
+canDash:eType.canDash||false,
+dashCD:eType.dashCD||0,
+dashTimer:eType.dashTimer||0,
+dashActive:eType.dashActive||false
 }});
 }}
 
