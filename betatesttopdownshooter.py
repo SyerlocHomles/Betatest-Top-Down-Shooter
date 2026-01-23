@@ -91,7 +91,7 @@ const transSub=document.getElementById('transition-subtitle');
 
 let score=0,health={p['hp']},gameOver=false;
 let keys={{}},bullets=[],enemies=[],particles=[],bosses=[],items=[];
-let chapter=1,stage=1,stageState='combat',transTimer=0,nextStageScore=1000,bossDefeated=false;
+let chapter=1,stage=1,stageState='combat',transTimer=0,lastBossScore=0;
 
 let pl={{x:300,y:200,r:12,speed:{p['spd']},baseSpeed:{p['spd']},
 type:'{p['type']}',color:'{p['col']}',sT:0,sM:100,shield:false,
@@ -175,22 +175,12 @@ type:'minion',variant:'summoned'
 }}
 
 function advanceStage(){{
-stage++;
-bossDefeated=false;
-if(stage>5){{
 stage=1;
 chapter++;
-showTrans(`CHAPTER ${{chapter}}`,'NEW WORLD!',240);
-}}else{{
-if(stage===5)showTrans(`⚠️ STAGE ${{chapter}}-${{stage}} ⚠️`,'BIG BOSS INCOMING!',240);
-else showTrans(`STAGE ${{chapter}}-${{stage}}`,'GET READY!',180);
-}}
-if(stage===1){{
+stageState='combat';
+lastBossScore=0;
 health=Math.min(health+3,10);
 spawnItem(300,200);
-}}else health=Math.min(health+1,10);
-nextStageScore=score+1000;
-stageState='transition';
 }}
 
 window.onkeydown=e=>{{keys[e.code]=true;if(e.code==='Space')useUlt()}};
@@ -282,8 +272,7 @@ transTimer--;
 if(transTimer<=0){{
 transEl.style.display='none';
 stageState='combat';
-if(stage<5)spawnMiniBoss(stage>=3);
-else if(stage===5)spawnMainBoss();
+if(stage===5)spawnMainBoss();
 }}
 return;
 }}
@@ -474,14 +463,9 @@ if(boss.type==='main'){{
 for(let n=0;n<3;n++)spawnItem(boss.x+Math.random()*60-30,boss.y+Math.random()*60-30);
 }}
 bosses.splice(i,1);
-if(bosses.length===0&&!gameOver){{
-bossDefeated=true;
-if(boss.type==='main'){{
+if(bosses.length===0&&!gameOver&&boss.type==='main'){{
 showTrans('BIG BOSS DEFEATED!','Advancing to next chapter!',180);
-setTimeout(()=>advanceStage(),180*16.67);
-}}else{{
-showTrans('MINI BOSS DEFEATED!','Continue fighting!',120);
-}}
+setTimeout(()=>advanceStage(),3000);
 }}
 }}
 }}
