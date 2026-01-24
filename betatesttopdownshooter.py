@@ -97,7 +97,12 @@ let pl={{x:300,y:200,r:12,speed:{p['spd']},baseSpeed:{p['spd']},
 type:'{p['type']}',color:'{p['col']}',sT:0,sM:100,shield:false,
 dmg:5,inv:0,kills:0,tripleShot:0,energyTime:0}};
 
-function spawnExplosion(x,y,col,ct=15){{for(let i=0;i<ct;i++)particles.push({{x,y,vx:(Math.random()-.5)*15,vy:(Math.random()-.5)*15,life:Math.random()*30+10,c:col}})}}
+function spawnExplosion(x,y,col,ct=15){{
+for(let i=0;i<ct;i++)particles.push({{
+x,y,vx:(Math.random()-.5)*15,vy:(Math.random()-.5)*15,
+life:Math.random()*30+10,c:col
+}});
+}}
 
 function spawnItem(x,y){{
 let r=Math.random();
@@ -116,14 +121,12 @@ pl.inv=180;
 if(health<=0){{gameOver=true;rBtn.style.display="block"}}
 }}
 
-function drawHex(x,y,sz,col,out){{
+function drawHex(x,y,sz,col){{
 ctx.fillStyle=col;
-if(out){{ctx.strokeStyle=out;ctx.lineWidth=3}}
 ctx.beginPath();
 for(let i=0;i<6;i++)ctx.lineTo(x+sz*Math.cos(i*Math.PI/3),y+sz*Math.sin(i*Math.PI/3));
 ctx.closePath();
 ctx.fill();
-if(out)ctx.stroke();
 }}
 
 function showTrans(title,sub,dur=180){{
@@ -157,19 +160,16 @@ summonTimer:200,summonCD:500,
 type:'main',phase:1,glow:0
 }});
 
-// Spawn 2 mini bosses immediately
 setTimeout(()=>{{
 bosses.push({{
 x:200,y:-30,s:35,hp:1000,mH:1000,c:'#9b59b6',sp:1.2,
 shieldActive:false,shieldTimer:0,nextShield:600,
-fireRate:50,fireTimer:0,
-type:'minion',variant:'summoned'
+fireRate:50,fireTimer:0,type:'minion',variant:'summoned'
 }});
 bosses.push({{
 x:400,y:-30,s:35,hp:1000,mH:1000,c:'#9b59b6',sp:1.2,
 shieldActive:false,shieldTimer:0,nextShield:600,
-fireRate:50,fireTimer:0,
-type:'minion',variant:'summoned'
+fireRate:50,fireTimer:0,type:'minion',variant:'summoned'
 }});
 }},1000);
 }}
@@ -436,123 +436,23 @@ boss.summonTimer=boss.summonCD;
 
 for(let m=0;m<3;m++){{
 let ex=Math.random()*600,ey=Math.random()*400;
-enemies.push({{
-x:ex,y:ey,s:22,sp:1.2,hp:5,c:'#e74',val:5,
-canShoot:false,shootCD:0,shootTimer:0,
-canDash:false,dashCD:0,dashTimer:0,dashActive:false
-}});
-}}
-}}
-
-if(boss.hp<=boss.mH*.5&&boss.phase===1){{
-boss.phase=2;
-boss.sp=1.2;
-boss.fireRate=25;
-boss.summonCD=400;
-spawnExplosion(boss.x,boss.y,'#FD7',50);
-}}
-boss.glow=(boss.glow+.05)%(Math.PI*2);
-}}
-
-if(boss.hp<=0){{
-let bonus=boss.type==='main'?1500:500;
-score+=bonus;
-spawnExplosion(boss.x,boss.y,boss.c,boss.type==='main'?100:50);
-spawnItem(boss.x,boss.y);
-if(boss.type==='main'){{
-for(let n=0;n<3;n++)spawnItem(boss.x+Math.random()*60-30,boss.y+Math.random()*60-30);
-}}
-bosses.splice(i,1);
-if(bosses.length===0&&!gameOver&&boss.type==='main'){{
-showTrans('BIG BOSS DEFEATED!','Advancing to next chapter!',180);
-setTimeout(()=>advanceStage(),3000);
-}}
-}}
-}}
-
-if(bossDefeated&&score>=nextStageScore&&bosses.length===0&&stageState==='combat'&&!gameOver){{
-advanceStage();
-}}
-
-if(bosses.length===0&&!gameOver&&enemies.length<8){{
 let rand=Math.random();
 let eType;
-
-// Stage 1-1: All normal enemies
-if(stage===1){{
-eType=rand<.33?{{c:'#2e7',hp:15,val:15,sp:.6,s:30}}:(rand<.66?{{c:'#95b',hp:5,val:10,sp:1.8,s:15}}:{{c:'#e74',hp:5,val:5,sp:1.2,s:22}});
-}}
-// Stage 1-2: Red can shoot
-else if(stage===2){{
-if(rand<.33)eType={{c:'#2e7',hp:15,val:15,sp:.6,s:30}};
-else if(rand<.66)eType={{c:'#95b',hp:5,val:10,sp:1.8,s:15}};
-else eType={{c:'#e74',hp:8,val:8,sp:1.4,s:22,canShoot:true,shootCD:120,shootTimer:0}};
-}}
-// Stage 1-3: Red & Green can shoot
-else if(stage===3){{
-if(rand<.33)eType={{c:'#2e7',hp:20,val:20,sp:.8,s:30,canShoot:true,shootCD:100,shootTimer:0}};
-else if(rand<.66)eType={{c:'#95b',hp:5,val:10,sp:1.8,s:15}};
-else eType={{c:'#e74',hp:8,val:8,sp:1.4,s:22,canShoot:true,shootCD:120,shootTimer:0}};
-}}
-// Stage 1-4: All can shoot (purple faster)
-else if(stage===4){{
-if(rand<.33)eType={{c:'#2e7',hp:20,val:20,sp:.8,s:30,canShoot:true,shootCD:100,shootTimer:0}};
-else if(rand<.66)eType={{c:'#95b',hp:8,val:15,sp:1.8,s:15,canShoot:true,shootCD:60,shootTimer:0}};
-else eType={{c:'#e74',hp:8,val:8,sp:1.4,s:22,canShoot:true,shootCD:120,shootTimer:0}};
-}}
-// Stage 1-5: During boss fight, spawn all advanced enemies
-else if(stage===5){{
 if(rand<.33)eType={{c:'#2e7',hp:25,val:25,sp:.9,s:30,canShoot:true,shootCD:90,shootTimer:0}};
 else if(rand<.66)eType={{c:'#95b',hp:10,val:20,sp:2.0,s:15,canShoot:true,shootCD:50,shootTimer:0}};
 else eType={{c:'#e74',hp:10,val:10,sp:1.5,s:22,canShoot:true,shootCD:100,shootTimer:0}};
-}}
-
-let ex,ey,dist;
-do{{
-ex=Math.random()*600;
-ey=Math.random()*400;
-dist=Math.hypot(ex-pl.x,ey-pl.y);
-}}while(dist<200);
-
 enemies.push({{
 x:ex,y:ey,s:eType.s,sp:eType.sp,hp:eType.hp,c:eType.c,val:eType.val,
 canShoot:eType.canShoot||false,
 shootCD:eType.shootCD||0,
-shootTimer:eType.shootTimer||0,
-canDash:eType.canDash||false,
-dashCD:eType.dashCD||0,
-dashTimer:eType.dashTimer||0,
-dashActive:eType.dashActive||false
+shootTimer:eType.shootTimer||0
 }});
 }}
 
 enemies.forEach(e=>{{
 let a=Math.atan2(pl.y-e.y,pl.x-e.x);
-
-if(e.canDash){{
-if(e.dashActive){{
-e.dashTimer--;
-if(e.dashTimer<=0){{
-e.dashActive=false;
-e.dashCD=180;
-}}else{{
-e.x+=Math.cos(a)*e.sp*3;
-e.y+=Math.sin(a)*e.sp*3;
-}}
-}}else{{
 e.x+=Math.cos(a)*e.sp;
 e.y+=Math.sin(a)*e.sp;
-e.dashCD--;
-if(e.dashCD<=0){{
-e.dashActive=true;
-e.dashTimer=20;
-spawnExplosion(e.x,e.y,e.c,10);
-}}
-}}
-}}else{{
-e.x+=Math.cos(a)*e.sp;
-e.y+=Math.sin(a)*e.sp;
-}}
 
 if(e.canShoot){{
 e.shootTimer++;
@@ -572,7 +472,6 @@ pt.life--;
 if(pt.life<=0)particles.splice(i,1);
 }});
 
-if(pl.inv>0)pl.inv--;
 uScore.innerText="Skor: "+score;
 uHP.innerText="❤️".repeat(Math.max(0,health));
 uStage.innerText=bosses.length>0?(bosses[0].type==='main'?"⚠️ BOSS BATTLE! ⚠️":`STAGE: ${{chapter}}-${{stage}}`):`STAGE: ${{chapter}}-${{stage}}`;
@@ -626,17 +525,11 @@ ctx.arc(e.x,e.y-e.s/2-5,3,0,7);
 ctx.fill();
 }}
 
-if(e.canDash&&e.dashActive){{
-ctx.strokeStyle='#fff';
-ctx.lineWidth=2;
-ctx.strokeRect(e.x-e.s/2-3,e.y-e.s/2-3,e.s+6,e.s+6);
-}}
-
 if(e.val>=15){{
 ctx.fillStyle='white';
 ctx.fillRect(e.x-10,e.y-(e.s/2+8),20,3);
 ctx.fillStyle='#2e7';
-ctx.fillRect(e.x-10,e.y-(e.s/2+8),(e.hp/20)*20,3);
+ctx.fillRect(e.x-10,e.y-(e.s/2+8),(e.hp/25)*20,3);
 }}
 }});
 
@@ -719,4 +612,89 @@ loop();
 </script>
 """
 
-cp.html(game_html, height=600)
+cp.html(game_html, height=600),
+canShoot:eType.canShoot,shootCD:eType.shootCD,shootTimer:eType.shootTimer
+}});
+}}
+}}
+
+if(boss.hp<=boss.mH*.5&&boss.phase===1){{
+boss.phase=2;
+boss.sp=1.2;
+boss.fireRate=25;
+boss.summonCD=400;
+spawnExplosion(boss.x,boss.y,'#FD7',50);
+}}
+boss.glow=(boss.glow+.05)%(Math.PI*2);
+}}
+
+if(boss.hp<=0){{
+let bonus=boss.type==='main'?1500:500;
+score+=bonus;
+spawnExplosion(boss.x,boss.y,boss.c,boss.type==='main'?100:50);
+spawnItem(boss.x,boss.y);
+if(boss.type==='main'){{
+for(let n=0;n<3;n++)spawnItem(boss.x+Math.random()*60-30,boss.y+Math.random()*60-30);
+}}
+bosses.splice(i,1);
+if(bosses.length===0&&!gameOver&&boss.type==='main'){{
+showTrans('BIG BOSS DEFEATED!','Advancing to next chapter!',180);
+setTimeout(()=>advanceStage(),3000);
+}}
+}}
+}}
+
+if(pl.inv>0)pl.inv--;
+
+let currentStage=Math.min(Math.floor(score/1000)+1,5);
+if(currentStage!==stage&&bosses.length===0&&stageState==='combat')stage=currentStage;
+
+if(score>=1000&&score<5000&&score%1000<10&&bosses.length===0&&stageState==='combat'&&!gameOver&&score>lastBossScore){{
+lastBossScore=score;
+spawnMiniBoss(stage>=3);
+}}
+
+if(score>=5000&&bosses.length===0&&stageState==='combat'&&!gameOver&&lastBossScore<5000){{
+lastBossScore=5000;
+stage=5;
+showTrans('⚠️ STAGE 1-5 ⚠️','BIG BOSS INCOMING!',240);
+stageState='transition';
+}}
+
+if(bosses.length===0&&!gameOver&&enemies.length<8){{
+let rand=Math.random();
+let eType;
+
+if(stage===1){{
+eType=rand<.33?{{c:'#2e7',hp:15,val:15,sp:.6,s:30}}:(rand<.66?{{c:'#95b',hp:5,val:10,sp:1.8,s:15}}:{{c:'#e74',hp:5,val:5,sp:1.2,s:22}});
+}}
+else if(stage===2){{
+if(rand<.33)eType={{c:'#2e7',hp:15,val:15,sp:.6,s:30}};
+else if(rand<.66)eType={{c:'#95b',hp:5,val:10,sp:1.8,s:15}};
+else eType={{c:'#e74',hp:8,val:8,sp:1.4,s:22,canShoot:true,shootCD:120,shootTimer:0}};
+}}
+else if(stage===3){{
+if(rand<.33)eType={{c:'#2e7',hp:20,val:20,sp:.8,s:30,canShoot:true,shootCD:100,shootTimer:0}};
+else if(rand<.66)eType={{c:'#95b',hp:5,val:10,sp:1.8,s:15}};
+else eType={{c:'#e74',hp:8,val:8,sp:1.4,s:22,canShoot:true,shootCD:120,shootTimer:0}};
+}}
+else if(stage===4){{
+if(rand<.33)eType={{c:'#2e7',hp:20,val:20,sp:.8,s:30,canShoot:true,shootCD:100,shootTimer:0}};
+else if(rand<.66)eType={{c:'#95b',hp:8,val:15,sp:1.8,s:15,canShoot:true,shootCD:60,shootTimer:0}};
+else eType={{c:'#e74',hp:8,val:8,sp:1.4,s:22,canShoot:true,shootCD:120,shootTimer:0}};
+}}
+else if(stage===5){{
+if(rand<.33)eType={{c:'#2e7',hp:25,val:25,sp:.9,s:30,canShoot:true,shootCD:90,shootTimer:0}};
+else if(rand<.66)eType={{c:'#95b',hp:10,val:20,sp:2.0,s:15,canShoot:true,shootCD:50,shootTimer:0}};
+else eType={{c:'#e74',hp:10,val:10,sp:1.5,s:22,canShoot:true,shootCD:100,shootTimer:0}};
+}}
+
+let ex,ey,dist;
+do{{
+ex=Math.random()*600;
+ey=Math.random()*400;
+dist=Math.hypot(ex-pl.x,ey-pl.y);
+}}while(dist<200);
+
+enemies.push({{
+x:ex,y:ey,s:eType.s,sp:eType.sp,hp:eType.hp,c:eType.c,val:eType.val
