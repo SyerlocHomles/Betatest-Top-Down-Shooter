@@ -301,9 +301,30 @@ lastBossScore=5000; stage=5; showTrans('⚠️ STAGE 1-5 ⚠️','BIG BOSS INCOM
 if(bosses.length===0&&!gameOver&&enemies.length<8){
 let rand=Math.random(), eType;
 if(stage===1) eType=rand<.33?{c:'#2e7',hp:15,val:15,sp:.6,s:30}:(rand<.66?{c:'#95b',hp:5,val:10,sp:1.8,s:15}:{c:'#e74',hp:5,val:5,sp:1.2,s:22});
-else if(stage===2) eType=rand<.66?(rand<.33?{c:'#2e7',hp:15,val:15,sp:.6,s:30}:{c:'#95b',hp:5,val:10,sp:1.8,s:15}):{c:'#e74',hp:8,val:8,sp:1.4,s:22,canShoot:true,shootCD:120,shootTimer:0};
-else if(stage>=3) eType={c:'#2e7',hp:25,val:25,sp:.9,s:30,canShoot:true,shootCD:90,shootTimer:0};
-// ... (Logika eType lainnya dari modul asli)
+// Stage 1-1
+    if (stage === 1) {
+        eType = rand < .33 ? { c: '#2e7', hp: 15, val: 15, sp: .6, s: 30 } : 
+               (rand < .66 ? { c: '#95b', hp: 5, val: 10, sp: 1.8, s: 15 } : 
+                             { c: '#e74', hp: 5, val: 5, sp: 1.2, s: 22 });
+    }
+    // Stage 1-2 (Musuh merah mulai muncul lebih kuat)
+    else if (stage === 2) {
+        if (rand < .33) eType = { c: '#2e7', hp: 15, val: 15, sp: .6, s: 30 };
+        else if (rand < .66) eType = { c: '#95b', hp: 5, val: 10, sp: 1.8, s: 15 };
+        else eType = { c: '#e74', hp: 8, val: 8, sp: 1.4, s: 22, canShoot: true, shootCD: 120 };
+    }
+    // Stage 1-3 (Musuh hijau bisa menembak)
+    else if (stage === 3) {
+        if (rand < .33) eType = { c: '#2e7', hp: 20, val: 20, sp: .8, s: 30, canShoot: true, shootCD: 100 };
+        else if (rand < .66) eType = { c: '#95b', hp: 5, val: 10, sp: 1.8, s: 15 };
+        else eType = { c: '#e74', hp: 8, val: 8, sp: 1.4, s: 22, canShoot: true, shootCD: 120 };
+    }
+    // Stage 1-4 (Musuh ungu sangat cepat dan menembak)
+    else if (stage === 4) {
+        if (rand < .33) eType = { c: '#2e7', hp: 20, val: 20, sp: .8, s: 30, canShoot: true, shootCD: 100 };
+        else if (rand < .66) eType = { c: '#95b', hp: 8, val: 15, sp: 1.8, s: 15, canShoot: true, shootCD: 60 };
+        else eType = { c: '#e74', hp: 8, val: 8, sp: 1.4, s: 22, canShoot: true, shootCD: 120 };
+    }
 
 let ex,ey,dist; do{ex=Math.random()*600; ey=Math.random()*400; dist=Math.hypot(ex-pl.x,ey-pl.y);}while(dist<200);
 enemies.push({x:ex,y:ey,s:eType.s,sp:eType.sp,hp:eType.hp,c:eType.c,val:eType.val,canShoot:eType.canShoot,shootCD:eType.shootCD,shootTimer:0});
