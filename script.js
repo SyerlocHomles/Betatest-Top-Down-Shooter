@@ -1,1 +1,32 @@
+<div style="text-align:center; background:#111; padding:15px; border-radius:15px; border: 4px solid #444; position:relative; font-family: sans-serif; user-select: none;">
+    <div style="display:flex; justify-content: space-between; color:white; font-weight:bold; margin-bottom: 10px;">
+        <div id="ui-stage">STAGE: 1-1</div>
+        <div id="ui-score">Skor: 0</div>
+        <div id="ui-hp">❤️❤️❤️</div>
+    </div>
+    
+    <div id="item-ui" style="position: absolute; left: 20px; bottom: 20px; text-align: left; pointer-events: none;">
+        <div id="energy-status" style="display:none; color:#4deaff; font-size:12px; font-weight:bold; margin-bottom:5px;">⚡ SPEED: <span id="energy-timer">0.0</span>s</div>
+        <div id="triple-status" style="display:none; color:#ffff4d; font-size:12px; font-weight:bold;">Ⅲ TRIPLE: <span id="triple-count">0</span></div>
+    </div>
 
+    <div style="margin: 0 auto 10px; width: 250px;">
+        <div id="ui-skill-text" style="color:white; font-size: 11px; font-weight:bold; text-transform: uppercase;">ULTIMATE</div>
+        <div style="width:100%; height:12px; background:#333; border-radius:6px; overflow:hidden; border: 1px solid #555;">
+            <div id="skill-bar" style="width:0%; height:100%; background: #0ef; box-shadow: 0 0 10px #0ef;"></div>
+        </div>
+    </div>
+
+    <canvas id="g" width="600" height="400" style="background:#050505; border: 2px solid #333; border-radius:5px; cursor: crosshair;"></canvas>
+    
+    <div id="stage-transition" style="display:none; position:absolute; top:50%; left:50%; transform:translate(-50%, -50%); background:rgba(0,0,0,0.95); padding:30px 60px; border-radius:15px; border: 3px solid #FFD700; z-index:100;">
+        <div id="transition-text" style="font-size:32px; font-weight:bold; color:#FFD700; text-shadow: 0 0 20px #FFD700;"></div>
+        <div id="transition-subtitle" style="font-size:16px; color:#FFF; margin-top:10px;"></div>
+    </div>
+
+    <div id="restart-btn" style="display:none; position:absolute; top:65%; left:50%; transform:translate(-50%, -50%);">
+        <button onclick="parent.window.location.reload()" style="padding:15px 30px; font-size:18px; font-weight:bold; color:white; background:#e74c3c; border:none; border-radius:10px; cursor:pointer; box-shadow: 0 5px #c0392b;">
+            KEMBALI KE MENU
+        </button>
+    </div>
+</div>
