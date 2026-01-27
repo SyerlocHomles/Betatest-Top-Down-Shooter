@@ -196,9 +196,16 @@ if (pl.type === 'assault' || pl.type === 'joker' || pl.type === 'roket') {
     pl.sT = Math.min(100, pl.sT + (100 / (10 * 60))); 
 }
 
-// --- UPDATE UI BAR, WARNA, DAN TEKS STATUS ---
+// Update UI Bar
 uBar.style.width = Math.min(100, pl.sT) + '%';
 
+if (pl.sT >= 100) {
+    uBar.classList.add('ult-ready'); // Mengaktifkan animasi CSS api
+} else {
+    uBar.classList.remove('ult-ready'); // Mematikan animasi
+    uBar.style.background = pl.color;   // Kembali ke warna asli hero
+    uBar.style.boxShadow = "none";
+}
 // Mengatur Warna Bar Berdasarkan Status
 if (pl.sT >= 100) {
     // Jika penuh: Berwarna putih dan bersinar (Efek Ready)
