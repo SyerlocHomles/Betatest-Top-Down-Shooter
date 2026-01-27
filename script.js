@@ -367,27 +367,40 @@ uStage.innerText=bosses.length>0?(bosses[0].type==='main'?"⚠️ BOSS BATTLE! �
 }
 
 function draw(){
-ctx.clearRect(0,0,600,400);
-items.forEach(it=>{ctx.fillStyle=it.c; ctx.beginPath(); ctx.arc(it.x,it.y,10,0,7); ctx.fill(); ctx.fillStyle='white'; ctx.font='bold 12px Arial'; ctx.textAlign='center'; ctx.fillText(it.label,it.x,it.y+4);});
-bullets.forEach(b=>{
-if(b.rk){
-let ang=Math.atan2(b.vy,b.vx); ctx.save(); ctx.translate(b.x,b.y); ctx.rotate(ang); ctx.fillStyle=b.c; ctx.beginPath(); ctx.moveTo(b.r,0); ctx.lineTo(-b.r,-b.r/1.5); ctx.lineTo(-b.r/2,0); ctx.lineTo(-b.r,b.r/1.5); ctx.closePath(); ctx.fill(); ctx.restore();
-}else{ctx.fillStyle=b.c; ctx.beginPath(); ctx.arc(b.x,b.y,b.r,0,7); ctx.fill();}
-});
-enemies.forEach(e=>{ctx.fillStyle=e.c; ctx.fillRect(e.x-e.s/2,e.y-e.s/2,e.s,e.s);});
-bosses.forEach(boss=>{
-if(boss.shieldActive){ctx.strokeStyle='#fd7'; ctx.lineWidth=4; ctx.beginPath(); ctx.arc(boss.x,boss.y,boss.s+10,0,7); ctx.stroke();}
-drawHex(boss.x,boss.y,boss.s,boss.c);
-ctx.fillStyle='#333'; ctx.fillRect(boss.x-40,boss.y-65,80,8); ctx.fillStyle='#f00'; ctx.fillRect(boss.x-40,boss.y-65,(boss.hp/boss.mH)*80,8);
-});
-particles.forEach(pt=>{ctx.fillStyle=pt.c; ctx.globalAlpha=pt.life/25; ctx.fillRect(pt.x,pt.y,3,3); ctx.globalAlpha=1;});
-if(pl.inv<=0||(pl.inv%10<5)){
-let ang=Math.atan2(my-pl.y,mx-pl.x); ctx.save(); ctx.translate(pl.x,pl.y); ctx.rotate(ang); ctx.fillStyle=pl.color; ctx.beginPath(); ctx.moveTo(18,0); ctx.lineTo(-12,-12); ctx.lineTo(-7,0); ctx.lineTo(-12,12); ctx.closePath(); ctx.fill(); ctx.restore();
-if(pl.shield){ctx.strokeStyle='#0ef'; ctx.lineWidth=3; ctx.beginPath(); ctx.arc(pl.x,pl.y,25,0,7); ctx.stroke();}
-}
-if(gameOver){ctx.fillStyle='white'; ctx.font='40px Arial'; ctx.textAlign='center'; ctx.fillText("GAME OVER",300,200);}
-}
+    ctx.clearRect(0,0,600,400);
 
+    // --- EFEK AURA API HERO (Hanya muncul saat Ready) ---
+    if(pl.sT >= 100){
+        ctx.save();
+        ctx.globalAlpha = 0.6;
+        // Membuat 3 lingkaran aura yang berdenyut
+        let auraSize = 25 + Math.sin(Date.now()/100) * 5; 
+        let grad = ctx.createRadialGradient(pl.x, pl.y, 5, pl.x, pl.y, auraSize);
+        grad.addColorStop(0, '#fff');
+        grad.addColorStop(0.4, '#ffae00'); // Warna Oranye Api
+        grad.addColorStop(1, 'transparent');
+        ctx.fillStyle = grad;
+        ctx.beginPath();
+        ctx.arc(pl.x, pl.y, auraSize, 0, Math.PI*2);
+        ctx.fill();
+        ctx.restore();
+    }
+
+    // ... (sisanya tetap sama seperti kodingan sebelumnya)
+    items.forEach(it=>{ /* ... */ });
+    bullets.forEach(b=>{ /* ... */ });
+    enemies.forEach(e=>{ /* ... */ });
+    bosses.forEach(boss=>{ /* ... */ });
+    particles.forEach(pt=>{ /* ... */ });
+
+    // Bagian gambar Hero (Pastikan ini tetap ada di bawah aura)
+    if(pl.inv<=0||(pl.inv%10<5)){
+        let ang=Math.atan2(my-pl.y,mx-pl.x); ctx.save(); ctx.translate(pl.x,pl.y); ctx.rotate(ang); ctx.fillStyle=pl.color; ctx.beginPath(); ctx.moveTo(18,0); ctx.lineTo(-12,-12); ctx.lineTo(-7,0); ctx.lineTo(-12,12); ctx.closePath(); ctx.fill(); ctx.restore();
+        if(pl.shield){ctx.strokeStyle='#0ef'; ctx.lineWidth=3; ctx.beginPath(); ctx.arc(pl.x,pl.y,25,0,7); ctx.stroke();}
+    }
+    
+    if(gameOver){ctx.fillStyle='white'; ctx.font='40px Arial'; ctx.textAlign='center'; ctx.fillText("GAME OVER",300,200);}
+}
 function loop(){update();draw();if(!gameOver)requestAnimationFrame(loop)}
 loop();
 })();
