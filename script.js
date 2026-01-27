@@ -2,6 +2,9 @@
 const c=document.getElementById('g'),ctx=c.getContext('2d');
 const uScore=document.getElementById('ui-score'),uHP=document.getElementById('ui-hp'),
 uBar=document.getElementById('skill-bar'),uStage=document.getElementById('ui-stage');
+// VARIABEL PENTING YANG TADI KURANG:
+const uUltStatus=document.getElementById('ui-ult-status'); 
+
 const energyUI=document.getElementById('energy-status'),energyTimer=document.getElementById('energy-timer');
 const tripleUI=document.getElementById('triple-status'),tripleCount=document.getElementById('triple-count');
 const rBtn=document.getElementById('restart-btn');
@@ -97,7 +100,7 @@ c.onmousemove=e=>{const r=c.getBoundingClientRect();mx=e.clientX-r.left;my=e.cli
 function useUlt(ft=null){
 let t=ft||pl.type;
 if(!ft&&(pl.sT<pl.sM||gameOver))return;
-if(!ft){pl.sT=0;pl.kills=0} // Reset kills saat ultimate dipakai
+if(!ft){pl.sT=0;pl.kills=0}
 
 if(t==='tank'){
 pl.shield=true;
@@ -184,15 +187,30 @@ if(keys['KeyW'])ny-=s; if(keys['KeyS'])ny+=s;
 if(keys['KeyA'])nx-=s; if(keys['KeyD'])nx+=s;
 if(nx>pl.r&&nx<600-pl.r)pl.x=nx; if(ny>pl.r&&ny<400-pl.r)pl.y=ny;
 
-// --- LOGIKA ULTIMATE BARU ---
+// --- LOGIKA ULTIMATE ---
 let adaBoss = bosses.length > 0;
 if (pl.type === 'assault' || pl.type === 'joker' || pl.type === 'roket') {
-    if (adaBoss) pl.sT = Math.min(100, pl.sT + (100 / (10 * 60))); // CD 10s saat boss
-    else pl.sT = Math.min(100, (pl.kills / 10) * 100); // 10 Kills
+    if (adaBoss) pl.sT = Math.min(100, pl.sT + (100 / (10 * 60))); 
+    else pl.sT = Math.min(100, (pl.kills / 10) * 100); 
 } else {
-    pl.sT = Math.min(100, pl.sT + (100 / (10 * 60))); // CD 10s untuk Tank, Scout, Bomber
+    pl.sT = Math.min(100, pl.sT + (100 / (10 * 60))); 
 }
+
+// Update UI Bar dan Teks Status
 uBar.style.width=Math.min(100,pl.sT)+'%';
+if(uUltStatus){
+    if(pl.sT>=100) {
+        uUltStatus.innerText="READY (SPACE)";
+        uUltStatus.style.color="#fff";
+    } else {
+        if((pl.type==='assault'||pl.type==='joker'||pl.type==='roket') && !adaBoss) {
+            uUltStatus.innerText = `${pl.kills}/10 KILLS`;
+        } else {
+            uUltStatus.innerText = Math.floor(pl.sT) + "%";
+        }
+        uUltStatus.style.color="#aaa";
+    }
+}
 
 for(let i=items.length-1;i>=0;i--){
 let it=items[i];
