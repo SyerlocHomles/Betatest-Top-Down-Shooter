@@ -376,22 +376,19 @@ uStage.innerText=bosses.length>0?(bosses[0].type==='main'?"⚠️ BOSS BATTLE! �
 function draw(){
     ctx.clearRect(0,0,600,400);
 
-    // --- EFEK AURA API HERO (Hanya muncul saat Ready) ---
-    if(pl.sT >= 100){
-        ctx.save();
-        ctx.globalAlpha = 0.6;
-        // Membuat 3 lingkaran aura yang berdenyut
-        let auraSize = 25 + Math.sin(Date.now()/100) * 5; 
-        let grad = ctx.createRadialGradient(pl.x, pl.y, 5, pl.x, pl.y, auraSize);
-        grad.addColorStop(0, '#fff');
-        grad.addColorStop(0.4, '#ffae00'); // Warna Oranye Api
-        grad.addColorStop(1, 'transparent');
-        ctx.fillStyle = grad;
-        ctx.beginPath();
-        ctx.arc(pl.x, pl.y, auraSize, 0, Math.PI*2);
-        ctx.fill();
-        ctx.restore();
-    }
+// Gambar Aura di bawah Hero
+if(pl.sT >= 100){
+    ctx.save();
+    let glow = 20 + Math.sin(Date.now()/50) * 5; // Efek denyut
+    ctx.shadowBlur = glow;
+    ctx.shadowColor = "#ff4500";
+    ctx.globalAlpha = 0.5;
+    ctx.fillStyle = "#ffd700";
+    ctx.beginPath();
+    ctx.arc(pl.x, pl.y, 18, 0, Math.PI*2);
+    ctx.fill();
+    ctx.restore();
+}
 
     // ... (sisanya tetap sama seperti kodingan sebelumnya)
     items.forEach(it=>{ /* ... */ });
