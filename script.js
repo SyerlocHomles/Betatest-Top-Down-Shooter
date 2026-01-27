@@ -376,18 +376,40 @@ uStage.innerText=bosses.length>0?(bosses[0].type==='main'?"⚠️ BOSS BATTLE! �
 function draw(){
     ctx.clearRect(0,0,600,400);
 
-// Gambar Aura di bawah Hero
-if(pl.sT >= 100){
-    ctx.save();
-    let glow = 20 + Math.sin(Date.now()/50) * 5; // Efek denyut
-    ctx.shadowBlur = glow;
-    ctx.shadowColor = "#ff4500";
-    ctx.globalAlpha = 0.5;
-    ctx.fillStyle = "#ffd700";
-    ctx.beginPath();
-    ctx.arc(pl.x, pl.y, 18, 0, Math.PI*2);
-    ctx.fill();
-    ctx.restore();
+function draw(){
+    ctx.clearRect(0,0,600,400);
+
+    // --- EFEK AURA API HERO (Hanya muncul saat Ready) ---
+    if(pl.sT >= 100){
+        ctx.save();
+        ctx.globalAlpha = 0.6;
+        // Membuat 3 lingkaran aura yang berdenyut
+        let auraSize = 25 + Math.sin(Date.now()/100) * 5; 
+        let grad = ctx.createRadialGradient(pl.x, pl.y, 5, pl.x, pl.y, auraSize);
+        grad.addColorStop(0, '#fff');
+        grad.addColorStop(0.4, '#ffae00'); // Warna Oranye Api
+        grad.addColorStop(1, 'transparent');
+        ctx.fillStyle = grad;
+        ctx.beginPath();
+        ctx.arc(pl.x, pl.y, auraSize, 0, Math.PI*2);
+        ctx.fill();
+        ctx.restore();
+    }
+
+    // ... (sisanya tetap sama seperti kodingan sebelumnya)
+    items.forEach(it=>{ /* ... */ });
+    bullets.forEach(b=>{ /* ... */ });
+    enemies.forEach(e=>{ /* ... */ });
+    bosses.forEach(boss=>{ /* ... */ });
+    particles.forEach(pt=>{ /* ... */ });
+
+    // Bagian gambar Hero (Pastikan ini tetap ada di bawah aura)
+    if(pl.inv<=0||(pl.inv%10<5)){
+        let ang=Math.atan2(my-pl.y,mx-pl.x); ctx.save(); ctx.translate(pl.x,pl.y); ctx.rotate(ang); ctx.fillStyle=pl.color; ctx.beginPath(); ctx.moveTo(18,0); ctx.lineTo(-12,-12); ctx.lineTo(-7,0); ctx.lineTo(-12,12); ctx.closePath(); ctx.fill(); ctx.restore();
+        if(pl.shield){ctx.strokeStyle='#0ef'; ctx.lineWidth=3; ctx.beginPath(); ctx.arc(pl.x,pl.y,25,0,7); ctx.stroke();}
+    }
+    
+    if(gameOver){ctx.fillStyle='white'; ctx.font='40px Arial'; ctx.textAlign='center'; ctx.fillText("GAME OVER",300,200);}
 }
 
     // ... (sisanya tetap sama seperti kodingan sebelumnya)
