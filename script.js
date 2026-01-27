@@ -196,19 +196,32 @@ if (pl.type === 'assault' || pl.type === 'joker' || pl.type === 'roket') {
     pl.sT = Math.min(100, pl.sT + (100 / (10 * 60))); 
 }
 
-// Update UI Bar dan Teks Status
-uBar.style.width=Math.min(100,pl.sT)+'%';
+// --- UPDATE UI BAR, WARNA, DAN TEKS STATUS ---
+uBar.style.width = Math.min(100, pl.sT) + '%';
+
+// Mengatur Warna Bar Berdasarkan Status
+if (pl.sT >= 100) {
+    // Jika penuh: Berwarna putih dan bersinar (Efek Ready)
+    uBar.style.background = "#ffffff";
+    uBar.style.boxShadow = "0 0 10px #ffffff, 0 0 5px #ffd700";
+} else {
+    // Jika sedang mengisi: Gunakan warna asli hero tersebut
+    uBar.style.background = pl.color;
+    uBar.style.boxShadow = "none";
+}
+
+// Update Teks Status (READY / KILLS / %)
 if(uUltStatus){
-    if(pl.sT>=100) {
-        uUltStatus.innerText="READY (SPACE)";
-        uUltStatus.style.color="#fff";
+    if(pl.sT >= 100) {
+        uUltStatus.innerText = "READY (SPACE)";
+        uUltStatus.style.color = "#fff";
     } else {
         if((pl.type==='assault'||pl.type==='joker'||pl.type==='roket') && !adaBoss) {
             uUltStatus.innerText = `${pl.kills}/10 KILLS`;
         } else {
             uUltStatus.innerText = Math.floor(pl.sT) + "%";
         }
-        uUltStatus.style.color="#aaa";
+        uUltStatus.style.color = "#aaa";
     }
 }
 
