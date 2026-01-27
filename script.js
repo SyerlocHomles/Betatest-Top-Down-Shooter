@@ -9,7 +9,6 @@ const transEl=document.getElementById('stage-transition');
 const transText=document.getElementById('transition-text');
 const transSub=document.getElementById('transition-subtitle');
 
-// Mengambil data dari variabel heroStats yang dikirim Python
 const pData = typeof heroStats !== 'undefined' ? heroStats : {hp:3, spd:6.5, col:'#ffa500', type:'roket'};
 
 let score=0,health=pData.hp,gameOver=false;
@@ -98,7 +97,7 @@ c.onmousemove=e=>{const r=c.getBoundingClientRect();mx=e.clientX-r.left;my=e.cli
 function useUlt(ft=null){
 let t=ft||pl.type;
 if(!ft&&(pl.sT<pl.sM||gameOver))return;
-if(!ft){pl.sT=0;pl.kills=0}
+if(!ft){pl.sT=0;pl.kills=0} // Reset kills saat ultimate dipakai
 
 if(t==='tank'){
 pl.shield=true;
@@ -185,13 +184,14 @@ if(keys['KeyW'])ny-=s; if(keys['KeyS'])ny+=s;
 if(keys['KeyA'])nx-=s; if(keys['KeyD'])nx+=s;
 if(nx>pl.r&&nx<600-pl.r)pl.x=nx; if(ny>pl.r&&ny<400-pl.r)pl.y=ny;
 
-// Logic Recharge Ultimate Sesuai Modul Asli
-if(pl.type==='roket'&&bosses.length>0)pl.sT=Math.min(100,pl.sT+(100/(5*60)));
-else if(pl.type==='roket')pl.sT=(pl.kills/8)*100;
-else if(pl.type==='tank'||pl.type==='bomber')pl.sT=Math.min(100,pl.sT+(100/(15*60)));
-else if(pl.type==='scout')pl.sT=Math.min(100,pl.sT+(bosses.length>0?100/(6*60):100/(10*60)));
-else if(pl.type==='joker')pl.sT=(pl.kills/15)*100;
-else if(pl.type==='assault')pl.sT=Math.min(100,pl.sT+.1);
+// --- LOGIKA ULTIMATE BARU ---
+let adaBoss = bosses.length > 0;
+if (pl.type === 'assault' || pl.type === 'joker' || pl.type === 'roket') {
+    if (adaBoss) pl.sT = Math.min(100, pl.sT + (100 / (10 * 60))); // CD 10s saat boss
+    else pl.sT = Math.min(100, (pl.kills / 10) * 100); // 10 Kills
+} else {
+    pl.sT = Math.min(100, pl.sT + (100 / (10 * 60))); // CD 10s untuk Tank, Scout, Bomber
+}
 uBar.style.width=Math.min(100,pl.sT)+'%';
 
 for(let i=items.length-1;i>=0;i--){
@@ -286,7 +286,6 @@ if(bosses.length===0&&!gameOver&&boss.type==='main'){showTrans('BIG BOSS DEFEATE
 
 if(pl.inv>0)pl.inv--;
 
-// Logic Stage Progresi Sesuai Modul Asli
 let currentStage=Math.min(Math.floor(score/1000)+1,5);
 if(currentStage!==stage&&bosses.length===0&&stageState==='combat')stage=currentStage;
 
@@ -300,31 +299,23 @@ lastBossScore=5000; stage=5; showTrans('⚠️ STAGE 1-5 ⚠️','BIG BOSS INCOM
 
 if(bosses.length===0&&!gameOver&&enemies.length<8){
 let rand=Math.random(), eType;
-if(stage===1) eType=rand<.33?{c:'#2e7',hp:15,val:15,sp:.6,s:30}:(rand<.66?{c:'#95b',hp:5,val:10,sp:1.8,s:15}:{c:'#e74',hp:5,val:5,sp:1.2,s:22});
-// Stage 1-1
-    if (stage === 1) {
-        eType = rand < .33 ? { c: '#2e7', hp: 15, val: 15, sp: .6, s: 30 } : 
-               (rand < .66 ? { c: '#95b', hp: 5, val: 10, sp: 1.8, s: 15 } : 
-                             { c: '#e74', hp: 5, val: 5, sp: 1.2, s: 22 });
-    }
-    // Stage 1-2 (Musuh merah mulai muncul lebih kuat)
-    else if (stage === 2) {
-        if (rand < .33) eType = { c: '#2e7', hp: 15, val: 15, sp: .6, s: 30 };
-        else if (rand < .66) eType = { c: '#95b', hp: 5, val: 10, sp: 1.8, s: 15 };
-        else eType = { c: '#e74', hp: 8, val: 8, sp: 1.4, s: 22, canShoot: true, shootCD: 120 };
-    }
-    // Stage 1-3 (Musuh hijau bisa menembak)
-    else if (stage === 3) {
-        if (rand < .33) eType = { c: '#2e7', hp: 20, val: 20, sp: .8, s: 30, canShoot: true, shootCD: 100 };
-        else if (rand < .66) eType = { c: '#95b', hp: 5, val: 10, sp: 1.8, s: 15 };
-        else eType = { c: '#e74', hp: 8, val: 8, sp: 1.4, s: 22, canShoot: true, shootCD: 120 };
-    }
-    // Stage 1-4 (Musuh ungu sangat cepat dan menembak)
-    else if (stage === 4) {
-        if (rand < .33) eType = { c: '#2e7', hp: 20, val: 20, sp: .8, s: 30, canShoot: true, shootCD: 100 };
-        else if (rand < .66) eType = { c: '#95b', hp: 8, val: 15, sp: 1.8, s: 15, canShoot: true, shootCD: 60 };
-        else eType = { c: '#e74', hp: 8, val: 8, sp: 1.4, s: 22, canShoot: true, shootCD: 120 };
-    }
+if (stage === 1) {
+    eType = rand < .33 ? { c: '#2e7', hp: 15, val: 15, sp: .6, s: 30 } : (rand < .66 ? { c: '#95b', hp: 5, val: 10, sp: 1.8, s: 15 } : { c: '#e74', hp: 5, val: 5, sp: 1.2, s: 22 });
+} else if (stage === 2) {
+    if (rand < .33) eType = { c: '#2e7', hp: 15, val: 15, sp: .6, s: 30 };
+    else if (rand < .66) eType = { c: '#95b', hp: 5, val: 10, sp: 1.8, s: 15 };
+    else eType = { c: '#e74', hp: 8, val: 8, sp: 1.4, s: 22, canShoot: true, shootCD: 120 };
+} else if (stage === 3) {
+    if (rand < .33) eType = { c: '#2e7', hp: 20, val: 20, sp: .8, s: 30, canShoot: true, shootCD: 100 };
+    else if (rand < .66) eType = { c: '#95b', hp: 5, val: 10, sp: 1.8, s: 15 };
+    else eType = { c: '#e74', hp: 8, val: 8, sp: 1.4, s: 22, canShoot: true, shootCD: 120 };
+} else if (stage === 4) {
+    if (rand < .33) eType = { c: '#2e7', hp: 20, val: 20, sp: .8, s: 30, canShoot: true, shootCD: 100 };
+    else if (rand < .66) eType = { c: '#95b', hp: 8, val: 15, sp: 1.8, s: 15, canShoot: true, shootCD: 60 };
+    else eType = { c: '#e74', hp: 8, val: 8, sp: 1.4, s: 22, canShoot: true, shootCD: 120 };
+} else {
+    eType = { c: '#2e7', hp: 25, val: 25, sp: .9, s: 30, canShoot: true, shootCD: 90 };
+}
 
 let ex,ey,dist; do{ex=Math.random()*600; ey=Math.random()*400; dist=Math.hypot(ex-pl.x,ey-pl.y);}while(dist<200);
 enemies.push({x:ex,y:ey,s:eType.s,sp:eType.sp,hp:eType.hp,c:eType.c,val:eType.val,canShoot:eType.canShoot,shootCD:eType.shootCD,shootTimer:0});
