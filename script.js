@@ -196,14 +196,14 @@ if (pl.type === 'assault' || pl.type === 'joker' || pl.type === 'roket') {
     pl.sT = Math.min(100, pl.sT + (100 / (10 * 60))); 
 }
 
-// Update UI Bar
+// --- UPDATE UI BAR & EFEK ---
 uBar.style.width = Math.min(100, pl.sT) + '%';
 
 if (pl.sT >= 100) {
-    uBar.classList.add('ult-ready'); // Mengaktifkan animasi CSS api
+    uBar.classList.add('ult-ready');
 } else {
-    uBar.classList.remove('ult-ready'); // Mematikan animasi
-    uBar.style.background = pl.color;   // Kembali ke warna asli hero
+    uBar.classList.remove('ult-ready');
+    uBar.style.background = pl.color; // Kembali ke warna hero
     uBar.style.boxShadow = "none";
 }
 // Mengatur Warna Bar Berdasarkan Status
